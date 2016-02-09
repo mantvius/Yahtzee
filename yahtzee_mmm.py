@@ -50,10 +50,9 @@ def expected_value(held_dice, num_die_sides, num_free_dice):
     """
 
     sequences = gen_all_sequences([_ for _ in range(1, num_die_sides+1)], num_free_dice)
-    print sequences
-
-    print "sum", sum(score(held_dice + seq) for seq in sequences)
-    print "count", len(sequences)
+    # print sequences
+    # print "sum", sum(score(held_dice + seq) for seq in sequences)
+    # print "count", len(sequences)
 
     return sum(score(held_dice + seq) for seq in sequences)/float(len(sequences))
 
@@ -79,16 +78,24 @@ def gen_all_holds(hand):
 
 def strategy(hand, num_die_sides):
     """
-    Compute the hold that maximizes the expected value when the
-    discarded dice are rolled.
+    Compute the hold that maximizes the expected value when the discarded dice are rolled.
 
-    hand: full yahtzee hand
-    num_die_sides: number of sides on each die
+    :param hand: full yahtzee hand
+    :param num_die_sides: number of sides on each die
 
     Returns a tuple where the first element is the expected score and
     the second element is a tuple of the dice to hold
     """
-    return (0.0, ())
+    max_score = 0
+    all_holds = gen_all_holds(hand)
+    for hold in all_holds:
+        exp_score = expected_value(hold, num_die_sides, len(hand) - len(hold))
+        # print "hold:", hold, ", score: ", exp_score, ", num_free_dice", len(hand) - len(hold)
+        if exp_score > max_score:
+            max_score = exp_score
+            hold_return = hold
+
+    return (max_score, hold_return)
 
 
 def run_example():
@@ -98,35 +105,15 @@ def run_example():
     num_die_sides = 6
     # hand = (1, 1, 1, 5, 6)
     hand = tuple(random.randint(1, 6) for dummy in range(num_die_sides))
-    print hand
-    # hand_score, hold = strategy(hand, num_die_sides)
-    # print "Best strategy for hand", hand, "is to hold", hold, "with expected score", hand_score
+    # print hand
+    hand_score, hold = strategy(hand, num_die_sides)
+    print "Best strategy for hand", hand, "is to hold", hold, "with expected score", hand_score
     # print score(hand)
-
     # print expected_value((2, 2), 6, 3)
-    print gen_all_holds(hand)
+    # print gen_all_holds(hand)
 
 
-run_example()
+# run_example()
 
 # import poc_holds_testsuite
 # poc_holds_testsuite.run_suite(gen_all_holds)
-
-
-
-
-
-# gen_all_holds should compute the set of all possible holds in a manner very similar to that of gen_all_sequences.
-# In particular, your implementation should iterate over the entries of hand and
-# compute all possible holds for the first k entries in hand using all possible holds for the first k-1 entries of hand
-
-# 0. {}
-#
-# 1. {} + a = {a}
-# {}, {a}
-#
-# 2. {} + b = {b}, {a} + b = {a, b}
-# {}, {a}, {b}, {a, b}
-#
-# 3. {} + c = {c}, {a} + c = {a, c}, {b} + c = {b, c}, {a, b} + c = {a, b, c}
-# {}, {a}, {b}, {a, b}, {c}, {a, c}, {b, c}, {a, b, c}
